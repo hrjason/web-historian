@@ -45,6 +45,7 @@ exports.readListOfUrls = function(cb, arg){
 exports.isUrlInList = function(results, url){
   if(results.indexOf(url) > -1) {
     console.log('this will be a redirect');
+    //loading page
   } else {
     exports.addUrlToList(url);
   }
@@ -54,6 +55,7 @@ exports.addUrlToList = function(site){
   fs.appendFile(exports.paths.list, site + '\n', function (err) {
     if (err) throw err;
     console.log( site + ' has been added to the list');
+    //loading page
   });
 };
 
