@@ -43,21 +43,29 @@ exports.readListOfUrls = function(cb, arg){
 };
 
 exports.isUrlInList = function(results, url){
-  //will do a quick key check for look up
-  console.log("in URL", results);
-  console.log("in URL", url);
+  if(results.indexOf(url) > -1) {
+    console.log('this will be a redirect');
+  } else {
+    exports.addUrlToList(url);
+  }
 };
 
 exports.addUrlToList = function(site){
   fs.appendFile(exports.paths.list, site + '\n', function (err) {
-    // if (err) throw err;
+    if (err) throw err;
     console.log( site + ' has been added to the list');
   });
 };
 
-exports.isURLArchived = function(){
-  //checking repeats if already inputted
-
+exports.isURLArchived = function(url){
+  //check directory folder
+  fs.exists(exports.paths.archivedSites + '/' + url, function(exists) {
+    if(exists) {
+        console.log('file exists');
+    } else {
+      exports.readListOfUrls(exports.isUrlInList, url);
+    }
+  });
 };
 
 exports.downloadUrls = function(){
