@@ -12,13 +12,14 @@
   </form>
   <script>
     var sender = function(url){
+      var message = { 'url': url };
       $.ajax({
         type: 'POST',
         url: 'http://127.0.0.1:8080',
-        data: JSON.stringify(url),
+        data: JSON.stringify(message),
         contentType: 'application/json',
         success: function(data){
-          console.log(data + " has been sent");
+          console.log(data);
         },
         error: function(data){
           console.log(data + " has failed to send");
