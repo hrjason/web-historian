@@ -10,8 +10,13 @@ var _ = require('underscore');
  */
 
 exports.paths = {
+  //_dirname relative to the model
+
+  //create object with three properties, stating the location of the archived site.
+  //with path.join(_dirname) shortcut to access main folder.
   'siteAssets' : path.join(__dirname, '../web/public'),
   'archivedSites' : path.join(__dirname, '../archives/sites'),
+  //appending the sites.txt file
   'list' : path.join(__dirname, '../archives/sites.txt')
 };
 
@@ -22,20 +27,42 @@ exports.initialize = function(pathsObj){
   });
 };
 
+//Bridge function
+exports.bridge = function(results, cb, arg){
+    cb(results, arg);
+};
+
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function(){
+exports.readListOfUrls = function(cb, arg){
+  return fs.readFile(exports.paths.list, 'utf8', function (err, data) {
+    if (err) throw err;
+    exports.bridge(data.split('\n'), cb, arg);
+  });
 };
 
-exports.isUrlInList = function(){
+exports.isUrlInList = function(results, url){
+  //will do a quick key check for look up
+  console.log("in URL", results);
+  console.log("in URL", url);
 };
 
-exports.addUrlToList = function(){
+exports.addUrlToList = function(site){
+  fs.appendFile(exports.paths.list, site + '\n', function (err) {
+    // if (err) throw err;
+    console.log( site + ' has been added to the list');
+  });
 };
 
 exports.isURLArchived = function(){
+  //checking repeats if already inputted
+
 };
 
 exports.downloadUrls = function(){
+  // worker function - chronjob will invoke this function which use our html fetcher
+  //_.each function to invoke each array element (url in this case)
+  // wipe sites.txt
+    //http://stackoverflow.com/questions/17371224/node-js-delete-content-in-file
 };

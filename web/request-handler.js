@@ -5,3 +5,10 @@ var archive = require('../helpers/archive-helpers');
 exports.handleRequest = function (req, res) {
   res.end(archive.paths.list);
 };
+
+archive.addUrlToList('google.com');
+archive.addUrlToList('reddit.com');
+archive.addUrlToList('amazon.com');
+var arch = archive.readListOfUrls( archive.isUrlInList, 'www.google.com');
+// console.log(arch);
+// adsfasdfasdf
