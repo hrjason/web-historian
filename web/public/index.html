@@ -8,30 +8,6 @@
   Enter a URL here:
   <form method="POST">
     <input type="input" name="url"></input>
-    <!-- <button class='submit'>Submit</button> -->
   </form>
-<!--   <script>
-    var sender = function(url){
-      var message = { 'url': url };
-      $.ajax({
-        type: 'POST',
-        url: 'http://127.0.0.1:8080',
-        data: JSON.stringify(message),
-        contentType: 'application/json',
-        success: function(data){
-          console.log(data);
-        },
-        error: function(data){
-          console.log(data + " has failed to send");
-        }
-      });
-    };
-    $('.submit').click(function(e){
-      e.preventDefault();
-      var url = $('.url').val();
-      sender(url);
-      $('.url').val('');
-    })
-  </script> -->
 </body>
 </html>

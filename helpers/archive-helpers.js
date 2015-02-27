@@ -28,26 +28,35 @@ exports.initialize = function(pathsObj){
 };
 
 //Bridge function
-exports.bridge = function(results, cb, arg, rcb){
-    cb(results, arg, rcb);
+exports.bridge = function(results, cb, arg, rcb, browser, ecb){
+    cb(results, arg, rcb, browser, ecb);
 };
 
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function(cb, arg, rcb){
+exports.readListOfUrls = function(cb, arg, rcb, browser, ecb){
   return fs.readFile(exports.paths.list, 'utf8', function (err, data) {
     if (err) throw err;
-    exports.bridge(data.split('\n'), cb, arg, rcb);
+    exports.bridge(data.split('\n'), cb, arg, rcb, browser, ecb);
   });
 };
 
-exports.isUrlInList = function(results, url, rcb){
-  if(results.indexOf(url) > -1) {
-    console.log('this will be a redirect');
-    rcb();
-  } else {
-    exports.addUrlToList(url, rcb);
+exports.isUrlInList = function(results, url, rcb, browser, ecb){
+  if(browser === true) {
+    if(results.indexOf(url) > -1){
+      //if in list, send to loading page
+      rcb();
+    } else {
+      ecb();
+    }
+  } else if(browser === false) {
+    if(results.indexOf(url) > -1) {
+      console.log('this will be a redirect');
+      rcb();
+    } else {
+      exports.addUrlToList(url, rcb);
+    }
   }
 };
 
@@ -63,12 +72,13 @@ exports.isURLArchived = function(url, cb, rcb, browser, ecb){
   //check directory folder
   fs.exists(exports.paths.archivedSites + '/' + url, function(exists) {
     if(exists) {
-      //console.log('isURLArchived: ', url);
       cb(url);
-    } else if(!exists && browser === undefined) {
-      exports.readListOfUrls(exports.isUrlInList, url, rcb);
+    } else if(!exists && browser === false) {
+      //if isn't archived, but not using browser - goal is too reach the addURLToList
+      exports.readListOfUrls(exports.isUrlInList, url, rcb, browser, ecb);
     } else if(!exists && browser === true) {
-      ecb();
+      //if isnt archived, but using browser - goal is the end before addURLToList
+      exports.readListOfUrls(exports.isUrlInList, url, rcb, browser, ecb);
     }
   });
 };
