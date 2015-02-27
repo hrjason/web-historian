@@ -1,13 +1,41 @@
 var path = require('path');
 var archive = require('../helpers/archive-helpers');
 var header = require('./http-helpers.js');
+var qs = require('querystring');
 // require more modules/folders here!
 
 exports.handleRequest = function (req, res) {
   if(req.method === 'GET') {
-    res.writeHead(200, header.headers);
-    res.end('get');
-    console.log('get working');
+    if(req.url === '/'){
+      header.serveAssets(res, archive.paths.siteAssets + '/index.html', function(content){
+          // console.log('readingtop');
+          res.writeHead(200, header.headers);
+          // console.log('reading');
+          res.end(content);
+      });
+    } else {
+      var urlString = req.url;
+      var urlShortened = urlString.substring(1);
+      //cb function
+      archive.isURLArchived(urlShortened.toLowerCase(), function(url){
+        header.serveAssets(res, archive.paths.archivedSites + req.url, function(content){
+            res.writeHead(200, header.headers);
+            res.end(content);
+        });
+      //rcb loading
+      }, function() {
+        header.serveAssets(res, archive.paths.siteAssets + '/loading.html', function(content){
+            res.writeHead(200, header.headers);
+            res.end(content);
+        });
+      //browser check
+      }, true,
+      //404 header
+        function() {
+            res.writeHead(404, header.headers);
+            res.end('not found');
+      });
+    }
   } else
   if(req.method === 'OPTIONS') {
     res.writeHead(200, header.headers);
@@ -15,18 +43,34 @@ exports.handleRequest = function (req, res) {
     console.log('OPTIONS WORKING');
   } else
   if(req.method === 'POST') {
-    res.writeHead(201, header.headers);
-    var urlObj = '';
+    //console.log(req);
+    // res.writeHead(201, header.headers);
+    var body = '';
     req.on('data', function(data) {
-      urlObj += data;
+      body += data;
     });
     req.on('end', function(){
-      urlObj = JSON.parse(urlObj);
-      // console.log(urlObj, urlObj.url )
-      //eventually handle www issue, as well as lowercase
-      archive.isURLArchived(urlObj.url.toLowerCase());
+      var key = qs.parse(body);
+      //cb function
+      archive.isURLArchived(key.url.toLowerCase(), function(url){
+        header.serveAssets(res, archive.paths.archivedSites + '/' + key.url, function(content){
+            res.writeHead(302, header.headers);
+            res.end(content);
+        });
+      //rcb loading
+      }, function() {
+        header.serveAssets(res, archive.paths.siteAssets + '/loading.html', function(content){
+            res.writeHead(302, header.headers);
+            res.end(content);
+        });
+      //browser check
+      }, false,
+      //404 header
+        function() {
+            res.writeHead(404, header.headers);
+            res.end('not found');
+      });
     });
-    res.end('POST complete');
   }
 };
 

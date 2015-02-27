@@ -28,44 +28,47 @@ exports.initialize = function(pathsObj){
 };
 
 //Bridge function
-exports.bridge = function(results, cb, arg){
-    cb(results, arg);
+exports.bridge = function(results, cb, arg, rcb){
+    cb(results, arg, rcb);
 };
 
 // The following function names are provided to you to suggest how you might
 // modularize your code. Keep it clean!
 
-exports.readListOfUrls = function(cb, arg){
+exports.readListOfUrls = function(cb, arg, rcb){
   return fs.readFile(exports.paths.list, 'utf8', function (err, data) {
     if (err) throw err;
-    exports.bridge(data.split('\n'), cb, arg);
+    exports.bridge(data.split('\n'), cb, arg, rcb);
   });
 };
 
-exports.isUrlInList = function(results, url){
+exports.isUrlInList = function(results, url, rcb){
   if(results.indexOf(url) > -1) {
     console.log('this will be a redirect');
-    //loading page
+    rcb();
   } else {
-    exports.addUrlToList(url);
+    exports.addUrlToList(url, rcb);
   }
 };
 
-exports.addUrlToList = function(site){
+exports.addUrlToList = function(site, rcb){
   fs.appendFile(exports.paths.list, site + '\n', function (err) {
     if (err) throw err;
     console.log( site + ' has been added to the list');
-    //loading page
+    rcb();
   });
 };
 
-exports.isURLArchived = function(url){
+exports.isURLArchived = function(url, cb, rcb, browser, ecb){
   //check directory folder
   fs.exists(exports.paths.archivedSites + '/' + url, function(exists) {
     if(exists) {
-        console.log('file exists');
-    } else {
-      exports.readListOfUrls(exports.isUrlInList, url);
+      //console.log('isURLArchived: ', url);
+      cb(url);
+    } else if(!exists && browser === undefined) {
+      exports.readListOfUrls(exports.isUrlInList, url, rcb);
+    } else if(!exists && browser === true) {
+      ecb();
     }
   });
 };

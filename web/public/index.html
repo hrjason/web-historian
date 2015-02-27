@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <link rel="stylesheet" type="text/css" href="styles.css" />
-  <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
+  <!-- <link rel="stylesheet" type="text/css" href="styles.css" /> -->
+  <!-- <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script> -->
 </head>
 <body>
   Enter a URL here:
   <form method="POST">
-    <input type="input" class="url"></input>
-    <button class='submit'>Submit</button>
+    <input type="input" name="url"></input>
+    <!-- <button class='submit'>Submit</button> -->
   </form>
-  <script>
+<!--   <script>
     var sender = function(url){
       var message = { 'url': url };
       $.ajax({
@@ -30,7 +30,8 @@
       e.preventDefault();
       var url = $('.url').val();
       sender(url);
+      $('.url').val('');
     })
-  </script>
+  </script> -->
 </body>
 </html>
