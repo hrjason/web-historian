@@ -1,6 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var request = require('request');
+var async = require('async');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -36,7 +38,7 @@ exports.bridge = function(results, cb, arg, rcb, browser, ecb){
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(cb, arg, rcb, browser, ecb){
-  return fs.readFile(exports.paths.list, 'utf8', function (err, data) {
+  fs.readFile(exports.paths.list, 'utf8', function (err, data) {
     if (err) throw err;
     exports.bridge(data.split('\n'), cb, arg, rcb, browser, ecb);
   });
@@ -45,7 +47,6 @@ exports.readListOfUrls = function(cb, arg, rcb, browser, ecb){
 exports.isUrlInList = function(results, url, rcb, browser, ecb){
   if(browser === true) {
     if(results.indexOf(url) > -1){
-      //if in list, send to loading page
       rcb();
     } else {
       ecb();
@@ -88,4 +89,28 @@ exports.downloadUrls = function(){
   //_.each function to invoke each array element (url in this case)
   // wipe sites.txt
     //http://stackoverflow.com/questions/17371224/node-js-delete-content-in-file
+  exports.readListOfUrls(exports.workerFunc);
+};
+
+exports.workerFunc = function(data){
+  var arr = data.slice(0, data.length-1);
+  (function(){
+    async.each(arr, function(url){
+      (function(){
+        request('http://' + url, function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            // console.log(body);
+            fs.writeFile(exports.paths.archivedSites + '/' + url, body, 'utf8', function (err) {
+              if (err) return console.log(err);
+              console.log(url, ' added');
+            });
+          }
+        });
+      })();
+    });
+  exports.eraseTxt();
+  })();
+};
+exports.eraseTxt = function() {
+  fs.writeFile(exports.paths.list, '', function(){console.log('erased')});
 };

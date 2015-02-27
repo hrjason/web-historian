@@ -4,6 +4,8 @@ var header = require('./http-helpers.js');
 var qs = require('querystring');
 // require more modules/folders here!
 
+archive.downloadUrls();
+
 exports.handleRequest = function (req, res) {
   if(req.method === 'GET') {
     if(req.url === '/'){
@@ -17,7 +19,7 @@ exports.handleRequest = function (req, res) {
       var urlString = req.url;
       var urlShortened = urlString.substring(1);
       //cb function
-      archive.isURLArchived(urlShortened.toLowerCase(), function(url){
+      archive.isURLArchived(urlShortened, function(url){
         header.serveAssets(res, archive.paths.archivedSites + req.url, function(content){
             res.writeHead(200, header.headers);
             res.end(content);
@@ -52,7 +54,7 @@ exports.handleRequest = function (req, res) {
     req.on('end', function(){
       var key = qs.parse(body);
       //cb function
-      archive.isURLArchived(key.url.toLowerCase(), function(url){
+      archive.isURLArchived(key.url, function(url){
         header.serveAssets(res, archive.paths.archivedSites + '/' + key.url, function(content){
             res.writeHead(302, header.headers);
             res.end(content);
